@@ -10,7 +10,7 @@ from tg_bot.keyboards.inline_keyboards.inline_keyboard_main_menu import (
     get_lead_without_group_keyboard,
 )
 from tg_bot.service.api_requests import find_user_in_django
-from tg_bot.configs.bot_messages import MAIN_MENU_NOT_REGISTERED, MAIN_MENU_TITLE
+from tg_bot.configs.bot_messages import MAIN_MENU_NOT_REGISTERED, MAIN_MENU_TITLE, MAIN_MENU_EDIT_TITLE
 
 
 logger = get_logger()

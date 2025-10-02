@@ -16,7 +16,9 @@ from tg_bot.configs.bot_messages import (
     PARTNER_INFO_TEMPLATE,
     PARTNER_INFO_WITH_CODE_TEMPLATE,
     PARTNER_CATEGORIES_EMPTY,
-    PARTNER_SELECT_CATEGORY
+    PARTNER_SELECT_CATEGORY,
+    PARTNER_LIST_EMPTY,
+    PARTNER_SELECT,
 )
 
 
@@ -38,15 +40,11 @@ async def partners_handler(callback: CallbackQuery):
     # Создаем клавиатуру с категориями
     keyboard = InlineKeyboardBuilder()
     for category in categories:
-        keyboard.button(
-            text=category["name"], callback_data=f"partner_category_{category['id']}"
-        )
+        keyboard.button(text=category["name"], callback_data=f"partner_category_{category['id']}")
     keyboard.button(text="<< Назад", callback_data="inline_main_menu")
     keyboard.adjust(1)
 
-    await callback.message.edit_text(
-        PARTNER_SELECT_CATEGORY, reply_markup=keyboard.as_markup()
-    )
+    await callback.message.edit_text(PARTNER_SELECT_CATEGORY, reply_markup=keyboard.as_markup())
     await callback.answer()
 
 
@@ -67,15 +65,11 @@ async def handle_category_selection(callback: CallbackQuery):
     # Создаем клавиатуру с партнерами
     keyboard = InlineKeyboardBuilder()
     for partner in partners:
-        keyboard.button(
-            text=partner["partner_name"], callback_data=f"partner_info_{partner['id']}"
-        )
+        keyboard.button(text=partner["partner_name"], callback_data=f"partner_info_{partner['id']}")
     keyboard.button(text="Назад", callback_data="partners_list")
     keyboard.adjust(1)
 
-    await callback.message.edit_text(
-        PARTNER_SELECT, reply_markup=keyboard.as_markup()
-    )
+    await callback.message.edit_text(PARTNER_SELECT, reply_markup=keyboard.as_markup())
     await callback.answer()
 
 
@@ -97,31 +91,21 @@ async def handle_partner_selection(callback: CallbackQuery):
 
     if user_status == "2":
         if user_status != "2":  # Только клиенты получают промокод
-            formatted_text = PARTNER_INFO_TEMPLATE.format(
-                partner_name=partner['partner_name'],
-                partner_description=partner['description']
-            )
+            formatted_text = PARTNER_INFO_TEMPLATE.format(partner_name=partner["partner_name"], partner_description=partner["description"])
         else:
             # Проверяем наличие промо-кода
-            if partner.get('code'):
+            if partner.get("code"):
                 formatted_text = PARTNER_INFO_WITH_CODE_TEMPLATE.format(
-                    partner_name=partner['partner_name'],
-                    partner_description=partner['description'],
-                    partner_code=partner['code']
+                    partner_name=partner["partner_name"], partner_description=partner["description"], partner_code=partner["code"]
                 )
             else:
-                formatted_text = PARTNER_INFO_TEMPLATE.format(
-                    partner_name=partner['partner_name'],
-                    partner_description=partner['description']
-                )
-            
+                formatted_text = PARTNER_INFO_TEMPLATE.format(partner_name=partner["partner_name"], partner_description=partner["description"])
+
     else:
         formatted_text = PARTNER_INFO_RESIDENTS_ONLY
 
     keyboard = InlineKeyboardBuilder()
-    keyboard.button(
-        text="<< Назад", callback_data=f"partner_category_{partner['category']}"
-    )
+    keyboard.button(text="<< Назад", callback_data=f"partner_category_{partner['category']}")
     keyboard.adjust(1)
 
     await callback.message.edit_text(formatted_text, reply_markup=keyboard.as_markup())
