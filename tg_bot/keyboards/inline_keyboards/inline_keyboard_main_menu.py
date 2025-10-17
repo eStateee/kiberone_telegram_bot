@@ -9,20 +9,12 @@ from dotenv import load_dotenv
 load_dotenv()
 
 
-def create_inline_button(
-    text: str,
-    callback_data: str = None,
-    url: str = None,
-    web_app_url: str = None
-) -> InlineKeyboardButton:
+def create_inline_button(text: str, callback_data: str = None, url: str = None, web_app_url: str = None) -> InlineKeyboardButton:
     """
     Создает кнопку InlineKeyboardButton с указанными параметрами.
     """
     if web_app_url:
-        return InlineKeyboardButton(
-            text=text,
-            web_app=WebAppInfo(url=web_app_url)
-        )
+        return InlineKeyboardButton(text=text, web_app=WebAppInfo(url=web_app_url))
     elif url:
         return InlineKeyboardButton(text=text, url=url)
     else:
@@ -42,37 +34,41 @@ button_balance = create_inline_button(text="Баланс", callback_data="check_
 
 
 def get_client_keyboard(user_tg_id) -> InlineKeyboardMarkup:
-    return InlineKeyboardMarkup(inline_keyboard=[
-        [create_inline_button(text="Личный кабинет KIBERhub", web_app_url=f"{API_URL}/webapp/index/?user_tg_id={user_tg_id}")] if os.getenv("BOT_DEBUG") == "False" else [],
-        [button_balance, button_payment],
-        [button_bonuses],
-        [button_manager],
-        [button_tg_links],
-        [button_links],
-        [button_faq],
-    ])
+    return InlineKeyboardMarkup(
+        inline_keyboard=[
+            [create_inline_button(text="Личный кабинет KIBERhub", web_app_url=f"{API_URL}webapp/index/?user_tg_id={user_tg_id}")] if os.getenv("BOT_DEBUG") == "False" else [],
+            [button_balance, button_payment],
+            [button_bonuses],
+            [button_manager],
+            [button_tg_links],
+            [button_links],
+            [button_faq],
+        ]
+    )
 
 
 def get_lead_with_group_keyboard() -> InlineKeyboardMarkup:
-    return InlineKeyboardMarkup(inline_keyboard=[
-        [button_balance, button_payment],
-        [button_bonuses],
-        [button_manager],
-        [button_tg_links],
-        [button_links],
-        [button_faq],
-    ])
+    return InlineKeyboardMarkup(
+        inline_keyboard=[
+            [button_balance, button_payment],
+            [button_bonuses],
+            [button_manager],
+            [button_tg_links],
+            [button_links],
+            [button_faq],
+        ]
+    )
+
 
 def get_lead_without_group_keyboard() -> InlineKeyboardMarkup:
-    return InlineKeyboardMarkup(inline_keyboard=[
-        [button_faq],
-        [button_erip],
-        [button_bonuses],
-        [button_manager],
-        [button_links],
-        [button_trial],
-        [button_news],
-    ])
-
-
-
+    return InlineKeyboardMarkup(
+        inline_keyboard=[
+            [button_faq],
+            [button_erip],
+            [button_bonuses],
+            [button_manager],
+            [button_links],
+            [button_trial],
+            [button_news],
+        ]
+    )
