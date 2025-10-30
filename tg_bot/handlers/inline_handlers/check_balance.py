@@ -20,6 +20,7 @@ async def check_balance_handler(callback: CallbackQuery):
 
     # Получаем балансы клиентов через API
     balances = await get_user_balances_from_api(telegram_id)
+    print(balances)
     if not balances:
         await callback.message.answer(BALANCE_ERROR)
         await callback.answer()
@@ -36,6 +37,10 @@ async def check_balance_handler(callback: CallbackQuery):
     for client in balances:
         client_name = client.get("client_name", BALANCE_CLIENT_NO_NAME)
         balance = client.get("balance", 0.0)
+        try:
+            balance = float(balance)
+        except (ValueError, TypeError):
+            balance = 0.0
         balance_message += BALANCE_CLIENT_TEMPLATE.format(client_name=client_name, balance=balance)
 
     # Отправляем сообщение с балансами
