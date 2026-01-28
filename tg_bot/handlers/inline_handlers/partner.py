@@ -114,7 +114,6 @@ async def handle_partner_selection(callback: CallbackQuery):
             # Составляем полный URL, объединив с базовым URL API
             full_image_url = API_URL.rstrip("/") + "/" + image_url.lstrip("/")
             image_url = full_image_url
-            print(full_image_url)
 
         # Отправляем медиа с описанием
         try:
