@@ -1,8 +1,10 @@
 from tg_bot.handlers.inline_handlers.main_menu import get_user_keyboard
 from aiogram import Router, F
 from aiogram.filters import Command
-from aiogram.types import Message, CallbackQuery
+from aiogram.types import Message, CallbackQuery, InputMediaPhoto
 from aiogram.utils.keyboard import InlineKeyboardBuilder
+from urllib.parse import urlparse
+from tg_bot.configs.bot_settings import API_URL
 
 from tg_bot.service.api_requests import (
     find_user_in_django,
@@ -77,7 +79,7 @@ async def handle_category_selection(callback: CallbackQuery):
 async def handle_partner_selection(callback: CallbackQuery):
     """
     Обработчик выбора партнера.
-    Отправляет информацию о бонусах.
+    Отправляет информацию о бонусах и изображение партнера.
     """
     partner_id = callback.data.split("_")[-1]
     partner = await get_partner_by_id(partner_id)
@@ -90,17 +92,11 @@ async def handle_partner_selection(callback: CallbackQuery):
     user_status = await get_user_status(str(callback.from_user.id))
 
     if user_status == "2":
-        if user_status != "2":  # Только клиенты получают промокод
-            formatted_text = PARTNER_INFO_TEMPLATE.format(partner_name=partner["partner_name"], partner_description=partner["description"])
+        # Проверяем наличие промо-кода
+        if partner.get("code"):
+            formatted_text = PARTNER_INFO_WITH_CODE_TEMPLATE.format(partner_name=partner["partner_name"], partner_description=partner["description"], partner_code=partner["code"])
         else:
-            # Проверяем наличие промо-кода
-            if partner.get("code"):
-                formatted_text = PARTNER_INFO_WITH_CODE_TEMPLATE.format(
-                    partner_name=partner["partner_name"], partner_description=partner["description"], partner_code=partner["code"]
-                )
-            else:
-                formatted_text = PARTNER_INFO_TEMPLATE.format(partner_name=partner["partner_name"], partner_description=partner["description"])
-
+            formatted_text = PARTNER_INFO_TEMPLATE.format(partner_name=partner["partner_name"], partner_description=partner["description"])
     else:
         formatted_text = PARTNER_INFO_RESIDENTS_ONLY
 
@@ -108,7 +104,28 @@ async def handle_partner_selection(callback: CallbackQuery):
     keyboard.button(text="<< Назад", callback_data=f"partner_category_{partner['category']}")
     keyboard.adjust(1)
 
-    await callback.message.edit_text(formatted_text, reply_markup=keyboard.as_markup())
+    # Проверяем наличие изображения и отправляем его с текстом или только текст
+    image_url = partner.get("image")
+    if image_url:
+        # Проверяем, является ли URL относительным (не содержит http/https)
+        parsed_url = urlparse(image_url)
+
+        if not parsed_url.scheme:  # Если схема отсутствует, значит URL относительный
+            # Составляем полный URL, объединив с базовым URL API
+            full_image_url = API_URL.rstrip("/") + "/" + image_url.lstrip("/")
+            image_url = full_image_url
+            print(full_image_url)
+
+        # Отправляем медиа с описанием
+        try:
+            await callback.message.edit_media(media=InputMediaPhoto(media=image_url, caption=formatted_text), reply_markup=keyboard.as_markup())
+        except Exception as e:
+            # Если не удалось загрузить изображение, отправляем только текст
+            await callback.message.edit_text(formatted_text, reply_markup=keyboard.as_markup())
+    else:
+        # Если изображения нет, отправляем обычный текст
+        await callback.message.edit_text(formatted_text, reply_markup=keyboard.as_markup())
+
     await callback.answer()
 
 
