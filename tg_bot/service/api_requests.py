@@ -11,7 +11,65 @@ from aiogram.types import Message
 from tg_bot.configs.bot_settings import API_URL
 from tg_bot.configs.logger_config import get_logger
 
+from tg_bot.configs.logger_config import get_logger
+
 logger = get_logger()
+
+
+async def get_partner_cities() -> list | None:
+    """
+    Получение списка городов партнеров.
+    """
+    try:
+        async with aiohttp.ClientSession() as session:
+            async with session.get(
+                f"{API_URL}api/get_partner_cities/"
+            ) as response:
+                if response.status == 200:
+                    response_data = await response.json()
+                    if response_data.get("success"):
+                        return response_data.get("data", [])
+                    else:
+                        logger.error(
+                            f"Ошибка при получении городов: {response_data.get('message')}"
+                        )
+                        return None
+                else:
+                    logger.error(
+                        f"Ошибка при получении городов: {await response.json()}"
+                    )
+                    return None
+    except Exception as e:
+        logger.error(f"Не удалось выполнить запрос к API: {e}")
+        return None
+
+
+async def get_partners_filtered(city_id: int, category_id: int) -> list | None:
+    """
+    Получение списка партнеров по городу и категории.
+    """
+    try:
+        async with aiohttp.ClientSession() as session:
+            async with session.get(
+                f"{API_URL}api/get_partners_filtered/{city_id}/{category_id}/"
+            ) as response:
+                if response.status == 200:
+                    response_data = await response.json()
+                    if response_data.get("success"):
+                        return response_data.get("data", [])
+                    else:
+                        logger.error(
+                            f"Ошибка при получении партнеров: {response_data.get('message')}"
+                        )
+                        return None
+                else:
+                    logger.error(
+                        f"Ошибка при получении партнеров: {await response.json()}"
+                    )
+                    return None
+    except Exception as e:
+        logger.error(f"Не удалось выполнить запрос к API: {e}")
+        return None
 
 
 async def find_user_in_django(telegram_id: str) -> dict | None:

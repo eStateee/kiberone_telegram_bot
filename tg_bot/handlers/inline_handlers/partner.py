@@ -10,7 +10,8 @@ from tg_bot.service.api_requests import (
     find_user_in_django,
     get_partner_by_id,
     get_partner_categories,
-    get_partners_by_category,
+    get_partner_cities,
+    get_partners_filtered,
 )
 from tg_bot.configs.bot_messages import (
     PARTNER_NOT_FOUND,
@@ -31,9 +32,34 @@ partners_router = Router()
 async def partners_handler(callback: CallbackQuery):
     """
     Обработчик кнопки "Партнеры".
-    Отправляет список категорий партнеров.
+    Отправляет список городов.
     """
+    cities = await get_partner_cities()
+    if not cities:
+        await callback.message.answer("Список городов пуст.")
+        await callback.answer()
+        return
+
+    # Создаем клавиатуру с городами
+    keyboard = InlineKeyboardBuilder()
+    for city in cities:
+        keyboard.button(text=city["name"], callback_data=f"partner_city_{city['id']}")
+    keyboard.button(text="<< Назад", callback_data="inline_main_menu")
+    keyboard.adjust(1)
+
+    await callback.message.edit_text("Выберите город:", reply_markup=keyboard.as_markup())
+    await callback.answer()
+
+
+@partners_router.callback_query(F.data.startswith("partner_city_"))
+async def handle_city_selection(callback: CallbackQuery):
+    """
+    Обработчик выбора города.
+    Отправляет список категорий.
+    """
+    city_id = callback.data.split("_")[-1]
     categories = await get_partner_categories()
+
     if not categories:
         await callback.message.answer(PARTNER_CATEGORIES_EMPTY)
         await callback.answer()
@@ -42,33 +68,43 @@ async def partners_handler(callback: CallbackQuery):
     # Создаем клавиатуру с категориями
     keyboard = InlineKeyboardBuilder()
     for category in categories:
-        keyboard.button(text=category["name"], callback_data=f"partner_category_{category['id']}")
-    keyboard.button(text="<< Назад", callback_data="inline_main_menu")
+        # Передаем city_id и category_id
+        keyboard.button(text=category["name"], callback_data=f"partner_select_{city_id}_{category['id']}")
+    
+    keyboard.button(text="<< Назад", callback_data="partners_list")
     keyboard.adjust(1)
 
     await callback.message.edit_text(PARTNER_SELECT_CATEGORY, reply_markup=keyboard.as_markup())
     await callback.answer()
 
 
-@partners_router.callback_query(F.data.startswith("partner_category_"))
+@partners_router.callback_query(F.data.startswith("partner_select_"))
 async def handle_category_selection(callback: CallbackQuery):
     """
-    Обработчик выбора категории.
+    Обработчик выбора категории (с учетом города).
     Отправляет список партнеров и их бонусов.
     """
-
-    category_id = callback.data.split("_")[-1]
-    partners = await get_partners_by_category(category_id)
+    # callback: partner_select_{city_id}_{category_id}
+    parts = callback.data.split("_")
+    if len(parts) < 4:
+        await callback.answer("Ошибка данных", show_alert=True)
+        return
+        
+    city_id = parts[2]
+    category_id = parts[3]
+    
+    partners = await get_partners_filtered(city_id, category_id)
     if not partners:
-        await callback.message.answer(PARTNER_LIST_EMPTY)
-        await callback.answer()
+        await callback.answer("В данном городе нет партнеров этой категории", show_alert=True)
         return
 
     # Создаем клавиатуру с партнерами
     keyboard = InlineKeyboardBuilder()
     for partner in partners:
-        keyboard.button(text=partner["partner_name"], callback_data=f"partner_info_{partner['id']}")
-    keyboard.button(text="Назад", callback_data="partners_list")
+        # Передаем partner_id и city_id для корректного возврата
+        keyboard.button(text=partner["partner_name"], callback_data=f"partner_info_{partner['id']}_{city_id}")
+    
+    keyboard.button(text="Назад", callback_data=f"partner_city_{city_id}")
     keyboard.adjust(1)
 
     await callback.message.edit_text(PARTNER_SELECT, reply_markup=keyboard.as_markup())
@@ -81,7 +117,11 @@ async def handle_partner_selection(callback: CallbackQuery):
     Обработчик выбора партнера.
     Отправляет информацию о бонусах и изображение партнера.
     """
-    partner_id = callback.data.split("_")[-1]
+    # callback: partner_info_{partner_id}_{city_id}
+    parts = callback.data.split("_")
+    partner_id = parts[2]
+    city_id = parts[3] if len(parts) > 3 else None
+    
     partner = await get_partner_by_id(partner_id)
     if not partner:
         await callback.message.answer(PARTNER_NOT_FOUND)
@@ -101,7 +141,15 @@ async def handle_partner_selection(callback: CallbackQuery):
         formatted_text = PARTNER_INFO_RESIDENTS_ONLY
 
     keyboard = InlineKeyboardBuilder()
-    keyboard.button(text="<< Назад", callback_data=f"partner_category_{partner['category']}")
+    
+    # Кнопка Назад должна вести к списку партнеров (Category select view)
+    # Нам нужен city_id и category_id. category_id берем из партнера.
+    if city_id and partner.get('category'):
+        keyboard.button(text="<< Назад", callback_data=f"partner_select_{city_id}_{partner['category']}")
+    else:
+        # Fallback если данных не хватает
+        keyboard.button(text="<< Назад", callback_data="partners_list")
+        
     keyboard.adjust(1)
 
     # Проверяем наличие изображения и отправляем его с текстом или только текст
