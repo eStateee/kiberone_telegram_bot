@@ -132,11 +132,23 @@ async def handle_partner_selection(callback: CallbackQuery):
     user_status = await get_user_status(str(callback.from_user.id))
 
     if user_status == "2":
+        # Формируем текст условий использования
+        terms_text = f"<b>Условия использования:</b> {partner.get('terms_of_usage')}\n" if partner.get('terms_of_usage') else ""
+        
         # Проверяем наличие промо-кода
         if partner.get("code"):
-            formatted_text = PARTNER_INFO_WITH_CODE_TEMPLATE.format(partner_name=partner["partner_name"], partner_description=partner["description"], partner_code=partner["code"])
+            formatted_text = PARTNER_INFO_WITH_CODE_TEMPLATE.format(
+                partner_name=partner["partner_name"], 
+                partner_description=partner["description"], 
+                partner_code=partner["code"],
+                partner_terms=terms_text
+            )
         else:
-            formatted_text = PARTNER_INFO_TEMPLATE.format(partner_name=partner["partner_name"], partner_description=partner["description"])
+            formatted_text = PARTNER_INFO_TEMPLATE.format(
+                partner_name=partner["partner_name"], 
+                partner_description=partner["description"],
+                partner_terms=terms_text
+            )
     else:
         formatted_text = PARTNER_INFO_RESIDENTS_ONLY
 

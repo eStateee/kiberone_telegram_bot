@@ -53,8 +53,8 @@ MANAGER_SALES_MANAGER_WITHOUT_TG = "👨‍💼 <b>{name}</b>\n"
 # Сообщения для обработчика партнеров
 PARTNER_NOT_FOUND = "Информация о партнере не найдена."
 PARTNER_INFO_RESIDENTS_ONLY = "Информация доступна только резидентам!"
-PARTNER_INFO_TEMPLATE = """\n            <b>Партнер:</b> {partner_name}\n            <b>Описание:</b> {partner_description}\n            """
-PARTNER_INFO_WITH_CODE_TEMPLATE = """\n            <b>Партнер:</b> {partner_name}\n            <b>Описание:</b> {partner_description}\n            <b>Промо-код:</b> {partner_code}\n            """
+PARTNER_INFO_TEMPLATE = """\n            <b>Партнер:</b> {partner_name}\n            <b>Описание:</b> {partner_description}\n            {partner_terms}"""
+PARTNER_INFO_WITH_CODE_TEMPLATE = """\n            <b>Партнер:</b> {partner_name}\n            <b>Описание:</b> {partner_description}\n            <b>Промо-код:</b> {partner_code}\n            {partner_terms}"""
 
 # Сообщения для обработчика телеграм-ссылок
 TG_LINKS_PLACEHOLDER = "Перейдите по ссылкам для вступления в группы.."
