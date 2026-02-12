@@ -95,7 +95,7 @@ async def handle_category_selection(callback: CallbackQuery):
     
     partners = await get_partners_filtered(city_id, category_id)
     if not partners:
-        await callback.answer("В данном городе нет партнеров этой категории", show_alert=True)
+        await callback.answer("К сожалению, в этой категории пока нет партнёров 🥺\n\nНо мы уже работаем над этим и скоро обязательно порадуем вас новыми предложениями — следите за обновлениями ✨", show_alert=True)
         return
 
     # Создаем клавиатуру с партнерами
@@ -104,7 +104,7 @@ async def handle_category_selection(callback: CallbackQuery):
         # Передаем partner_id и city_id для корректного возврата
         keyboard.button(text=partner["partner_name"], callback_data=f"partner_info_{partner['id']}_{city_id}")
     
-    keyboard.button(text="Назад", callback_data=f"partner_city_{city_id}")
+    keyboard.button(text="<< Назад", callback_data=f"partner_city_{city_id}")
     keyboard.adjust(1)
 
     await callback.message.edit_text(PARTNER_SELECT, reply_markup=keyboard.as_markup())
