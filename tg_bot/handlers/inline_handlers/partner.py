@@ -107,7 +107,11 @@ async def handle_category_selection(callback: CallbackQuery):
     keyboard.button(text="<< Назад", callback_data=f"partner_city_{city_id}")
     keyboard.adjust(1)
 
-    await callback.message.edit_text(PARTNER_SELECT, reply_markup=keyboard.as_markup())
+    if callback.message.photo:
+        await callback.message.delete()
+        await callback.message.answer(PARTNER_SELECT, reply_markup=keyboard.as_markup())
+    else:
+        await callback.message.edit_text(PARTNER_SELECT, reply_markup=keyboard.as_markup())
     await callback.answer()
 
 
