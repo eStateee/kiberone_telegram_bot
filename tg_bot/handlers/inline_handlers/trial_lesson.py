@@ -4,7 +4,7 @@ from aiogram.types import CallbackQuery
 
 from tg_bot.service.api_requests import find_user_in_django, get_location_info, get_user_trial_lessons
 from tg_bot.configs.logger_config import get_logger
-from tg_bot.configs.bot_messages import TRIAL_LESSON_CHECKING, TRIAL_LESSON_USER_ERROR, TRIAL_LESSON_NO_RECORDS
+from tg_bot.configs.bot_messages import *
 
 logger = get_logger()
 
