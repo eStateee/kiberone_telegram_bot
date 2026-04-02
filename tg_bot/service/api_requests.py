@@ -200,6 +200,9 @@ async def register_user_in_crm(message: Message, phone_number: str) -> dict | No
         "last_name": tg_user.last_name or "",
         "username": tg_user.username,
         "phone_number": phone_number,
+        # TODO: Добавить выбор города/филиала в боте перед регистрацией (Этап 3)
+        # В настоящее время backend (crm_service.py) хардкодит "branch_ids": 1. 
+        # Нужно отправлять 'branch_id' отсюда после опроса пользователя.
     }
     async with aiohttp.ClientSession() as session:
         url = f"{API_URL}api/register_user_in_crm/"

@@ -171,9 +171,8 @@ async def handle_contact(message: Message):
     )
     await message.answer(START_TELEGRAM_LINKS, reply_markup=keyboard)
 
-    # # Отправляем клавиатуру в зависимости от статуса
-    # await message.answer("Вот мое меню 🤗:", reply_markup=await get_user_keyboard(telegram_id))
-
+    # Отправляем клавиатуру в зависимости от статуса
+    await message.answer(START_MENU, reply_markup=await get_user_keyboard(telegram_id))
 
 # -----------------------------------------------------------
 
@@ -190,11 +189,24 @@ async def handle_crm_lookup(message: Message, phone_number: str, db_user: dict):
         if not search_crm_response:
             logger.warning(f"Пользователь с телефоном {phone_number} не найден в CRM.")
             await message.answer(CRM_NOT_REGISTERED)
-            register_response: dict = await register_user_in_crm(message, phone_number)
-            crm_items: list = parse_crm_response(register_response)
+            register_response: dict | None = await register_user_in_crm(message, phone_number)
+            if not register_response:
+                logger.error("Ошибка при регистрации пользователя в CRM.")
+                await message.answer(CRM_UPDATE_FAILED)
+                return
+
+            logger.info("Пользователь зарегистрирован в CRM. Запрашиваем актуальные данные из CRM...")
+            import asyncio
+            await asyncio.sleep(1) # Небольшая задержка для обновления индекса на стороне CRM
+            
+            search_crm_response_new: dict | None = await find_user_in_crm(phone_number)
+            if search_crm_response_new:
+                crm_items = search_crm_response_new.get("items", [])
+            else:
+                crm_items = parse_crm_response(register_response)
 
             logger.info("Обновление пользователя в БД после регистрации в црм")
-            response_data: dict = await create_or_update_clients_from_crm(db_user, crm_items)
+            response_data: dict | None = await create_or_update_clients_from_crm(db_user, crm_items)
             if not response_data:
                 await message.answer(CRM_UPDATE_FAILED)
                 return
@@ -232,20 +244,24 @@ def parse_crm_response(register_response: dict) -> list:
     """
     Преобразует ответ от CRM в список словарей.
     """
+    if not isinstance(register_response, dict):
+        return []
+
     data: list = register_response.get("data", [])
     crm_items: list = []
 
-    # Объединяем все строки в одну
-    full_json_str = "".join(data)
-
-    try:
-        # Разбиваем объединенную строку на отдельные JSON-объекты
-        items = json.loads(f"[{full_json_str}]")
-        for item in items:
-            model_data = item.get("model")
-            if model_data:
-                crm_items.append(model_data)
-    except json.JSONDecodeError as e:
-        logger.error(f"Ошибка при декодировании JSON: {e}")
+    for chunk in data:
+        try:
+            if isinstance(chunk, str):
+                parsed = json.loads(chunk)
+                model_data = parsed.get("model")
+                if model_data:
+                    crm_items.append(model_data)
+            elif isinstance(chunk, dict):
+                model_data = chunk.get("model")
+                if model_data:
+                    crm_items.append(model_data)
+        except (json.JSONDecodeError, TypeError) as e:
+            logger.error(f"Ошибка при декодировании JSON чанка: {e}")
 
     return crm_items
