@@ -25,7 +25,7 @@ async def social_links_handler(callback: CallbackQuery):
             [InlineKeyboardButton(text=link["name"], url=link["link"])]
             for link in links
         ]
-        + [[InlineKeyboardButton(text="Главный новостной канал KIBERone", url="https://t.me/kiberone_bel")]]
+        + [[InlineKeyboardButton(text="Главный новостной канал KLiK", url="https://t.me/kiberone_bel")]]
         + [[InlineKeyboardButton(text="<< Назад", callback_data="inline_main_menu")]]
     )
 
@@ -38,7 +38,7 @@ async def social_links_handler(callback: CallbackQuery):
 async def tg_links_handler(callback: CallbackQuery):
     # buttons = [
     #     InlineKeyboardButton(
-    #         text="Главный новостной канал KIBERone", url="https://t.me/kiberone_bel"
+    #         text="Главный новостной канал KLiK", url="https://t.me/kiberone_bel"
     #     )
     # ]
     

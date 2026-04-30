@@ -1,7 +1,7 @@
 from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 
 button_1: InlineKeyboardButton = InlineKeyboardButton(
-    text='Партнеры KIBERone',
+    text='Партнеры KLiK',
     callback_data='partners_list')
 
 button_2: InlineKeyboardButton = InlineKeyboardButton(
