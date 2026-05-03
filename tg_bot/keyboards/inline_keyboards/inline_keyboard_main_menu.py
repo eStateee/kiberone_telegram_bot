@@ -36,7 +36,7 @@ button_balance = create_inline_button(text="Баланс", callback_data="check_
 def get_client_keyboard(user_tg_id) -> InlineKeyboardMarkup:
     return InlineKeyboardMarkup(
         inline_keyboard=[
-            [create_inline_button(text="Личный кабинет KLiKhub", web_app_url=f"{API_URL}webapp/index/?user_tg_id={user_tg_id}")] if os.getenv("BOT_DEBUG") == "False" else [],
+            [create_inline_button(text="Личный кабинет KLiKhub", web_app_url=f"{API_URL}webapp/index/?user_tg_id={user_tg_id}&v=1.0.1")] if os.getenv("BOT_DEBUG") == "False" else [],
             [button_balance, button_payment],
             [button_bonuses],
             [button_manager],
