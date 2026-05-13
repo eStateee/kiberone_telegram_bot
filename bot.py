@@ -22,6 +22,7 @@ from tg_bot.handlers.inline_handlers.bonus import bonuses_router
 from tg_bot.handlers.inline_handlers.kiberone_manager import contact_manager_router
 from tg_bot.handlers.inline_handlers.social_links import social_router
 from tg_bot.handlers.inline_handlers.trial_lesson import trial_lesson_router
+from tg_bot.handlers.inline_handlers.summer_camp import summer_camp_router
 
 
 logger = get_logger()
@@ -55,6 +56,7 @@ async def main():
     dp.include_routers (
         handler_start.start_router,
         main_menu_router,
+        summer_camp_router,
         faq_router,
         erip_router,
         partners_router,

@@ -730,3 +730,56 @@ async def get_user_tg_links_from_api(telegram_id: str) -> list | None:
     except Exception as e:
         logger.error(f"Не удалось выполнить запрос к API: {e}")
         return None
+
+
+async def get_summer_data() -> dict | None:
+    """
+    Получение структуры летних лагерей из API.
+    """
+    try:
+        async with aiohttp.ClientSession() as session:
+            async with session.get(
+                f"{API_URL}api/summer/data/"
+            ) as response:
+                if response.status == 200:
+                    response_data = await response.json()
+                    if response_data.get("success"):
+                        logger.info("Данные 'Лето с KLiK' успешно получены.")
+                        return response_data.get("data", {})
+                    else:
+                        logger.error(
+                            f"Ошибка при получении данных 'Лето с KLiK': {response_data.get('message')}"
+                        )
+                        return None
+                else:
+                    logger.error(
+                        f"Ошибка при получении данных 'Лето с KLiK': status={response.status}"
+                    )
+                    return None
+    except Exception as e:
+        logger.error(f"Не удалось выполнить запрос к API (summer/data): {e}")
+        return None
+
+
+async def track_summer_click(entity_type: str, entity_id: int = 0) -> bool:
+    """
+    Отправка клика для аналитики (fire-and-forget).
+    """
+    try:
+        async with aiohttp.ClientSession() as session:
+            data = {"entity_type": entity_type, "entity_id": entity_id}
+            async with session.post(
+                f"{API_URL}api/summer/click/", json=data
+            ) as response:
+                if response.status == 200:
+                    logger.info(f"Клик '{entity_type}' (id={entity_id}) зафиксирован.")
+                    return True
+                else:
+                    logger.error(
+                        f"Ошибка при трекинге клика: status={response.status}"
+                    )
+                    return False
+    except Exception as e:
+        logger.error(f"Не удалось выполнить запрос к API (summer/click): {e}")
+        return False
+

@@ -31,11 +31,13 @@ button_links = create_inline_button(text="Будь в тренде!", callback_d
 button_trial = create_inline_button(text="Дата пробного занятия", callback_data="user_trial_date")
 button_news = create_inline_button(text="Главный новостной канал KLiK", url="https://t.me/kiberone_bel")
 button_balance = create_inline_button(text="Баланс", callback_data="check_balance")
+button_summer = create_inline_button(text="☀️ Лето с KLiK", callback_data="summer_main")
 
 
 def get_client_keyboard(user_tg_id) -> InlineKeyboardMarkup:
     return InlineKeyboardMarkup(
         inline_keyboard=[
+            [button_summer],
             [create_inline_button(text="Личный кабинет KLiKhub", web_app_url=f"{API_URL}webapp/index/?user_tg_id={user_tg_id}&v=1.0.2")] if os.getenv("BOT_DEBUG") == "False" else [],
             [button_balance, button_payment],
             [button_bonuses],
@@ -50,6 +52,7 @@ def get_client_keyboard(user_tg_id) -> InlineKeyboardMarkup:
 def get_lead_with_group_keyboard() -> InlineKeyboardMarkup:
     return InlineKeyboardMarkup(
         inline_keyboard=[
+            [button_summer],
             [button_balance, button_payment],
             [button_bonuses],
             [button_manager],
@@ -63,6 +66,7 @@ def get_lead_with_group_keyboard() -> InlineKeyboardMarkup:
 def get_lead_without_group_keyboard() -> InlineKeyboardMarkup:
     return InlineKeyboardMarkup(
         inline_keyboard=[
+            [button_summer],
             [button_faq],
             [button_erip],
             [button_bonuses],

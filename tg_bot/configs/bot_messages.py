@@ -139,3 +139,11 @@ TRIAL_LESSON_NO_PLANNED = "У вас нет запланированных пр�
 TRIAL_LESSON_UNKNOWN_ADDRESS = "Адрес занятия неизвестен."
 TRIAL_LESSON_INFO_TEMPLATE = "Вы записаны на пробное занятие:\n{day}: {time}\nЛокация: {address}"
 TRIAL_LESSON_ERROR = "Произошла ошибка при обработке вашего запроса. Попробуйте позже."
+
+# Сообщения для обработчика "Лето с KLiK"
+SUMMER_SELECT_DIRECTION = "☀️ <b>Лето с KLiK</b>\n\nВыбери направление:"
+SUMMER_CITY_SELECT_FORMAT = "📍 <b>{city_name}</b>\n\nВыбери формат:"
+SUMMER_DATA_ERROR = "⚠️ Не удалось загрузить данные. Попробуйте позже."
+SUMMER_NO_FORMATS = "В этом городе пока нет доступных форматов."
+SUMMER_FEATURE_DISABLED = "☀️ Раздел «Лето с KLiK» временно недоступен."
+
