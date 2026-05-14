@@ -775,8 +775,9 @@ async def track_summer_click(entity_type: str, entity_id: int = 0) -> bool:
                     logger.info(f"Клик '{entity_type}' (id={entity_id}) зафиксирован.")
                     return True
                 else:
+                    error_text = await response.text()
                     logger.error(
-                        f"Ошибка при трекинге клика: status={response.status}"
+                        f"Ошибка при трекинге клика: status={response.status}, text={error_text}"
                     )
                     return False
     except Exception as e:

@@ -236,7 +236,7 @@ async def _send_content(
 ) -> None:
     """
     Вспомогательная функция для отправки контента (текст + опциональное фото).
-    Паттерн аналогичен partner.py.
+    Обеспечивает атомарность операций и безопасный fallback при ошибках Telegram API.
     """
     if image_url:
         full_url = _build_full_image_url(image_url)
@@ -248,29 +248,43 @@ async def _send_content(
                     reply_markup=keyboard.as_markup(),
                 )
             else:
-                # Удаляем текстовое сообщение и отправляем фото
-                await callback.message.delete()
+                # Пытаемся отправить фото ПЕРЕД удалением текстового сообщения
                 await callback.message.answer_photo(
                     photo=full_url,
                     caption=text,
                     reply_markup=keyboard.as_markup(),
                 )
+                # Если отправка фото успешна — удаляем старое текстовое сообщение
+                try:
+                    await callback.message.delete()
+                except Exception as del_err:
+                    logger.warning(f"Не удалось удалить старое сообщение: {del_err}")
         except Exception as e:
             logger.error(f"Ошибка при отправке изображения: {e}")
-            # Fallback — отправляем только текст
+            # Fallback — оставляем/отправляем только текст
             if callback.message.photo:
-                await callback.message.delete()
+                # Если редактирование медиа упало, удаляем его и шлем текст заново
+                try:
+                    await callback.message.delete()
+                except Exception:
+                    pass
                 await callback.message.answer(
                     text, reply_markup=keyboard.as_markup()
                 )
             else:
+                # Если отправка фото упала, старое текстовое сообщение НЕ удалено (см. try выше)
+                # Просто редактируем его текст
                 await callback.message.edit_text(
                     text, reply_markup=keyboard.as_markup()
                 )
     else:
         # Нет изображения — только текст
         if callback.message.photo:
-            await callback.message.delete()
+            try:
+                await callback.message.delete()
+            except Exception:
+                pass
             await callback.message.answer(text, reply_markup=keyboard.as_markup())
         else:
             await callback.message.edit_text(text, reply_markup=keyboard.as_markup())
+
