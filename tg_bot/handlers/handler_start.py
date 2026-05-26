@@ -87,7 +87,7 @@ async def handle_existing_user(message, db_user: dict):
 
     buttons = [
         InlineKeyboardButton(
-            text="Главный новостной канал KLiK", url="https://t.me/kiberone_bel"
+            text="Главный новостной канал KLiK", url="https://t.me/KLiK_bel"
         )
     ]
 
@@ -153,7 +153,7 @@ async def handle_contact(message: Message):
 
     buttons = [
         InlineKeyboardButton(
-            text="Главный новостной канал KLiK", url="https://t.me/kiberone_bel"
+            text="Главный новостной канал KLiK", url="https://t.me/KLiK_bel"
         )
     ]
 

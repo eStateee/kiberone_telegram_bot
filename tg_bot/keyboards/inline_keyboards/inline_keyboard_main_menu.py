@@ -29,7 +29,7 @@ button_manager = create_inline_button(text="Ваш менеджер KLiK", callb
 button_tg_links = create_inline_button(text="Ваш чат группы", callback_data="tg_links")
 button_links = create_inline_button(text="Будь в тренде!", callback_data="menu_links")
 button_trial = create_inline_button(text="Дата пробного занятия", callback_data="user_trial_date")
-button_news = create_inline_button(text="Главный новостной канал KLiK", url="https://t.me/kiberone_bel")
+button_news = create_inline_button(text="Главный новостной канал KLiK", url="https://t.me/KLiK_bel")
 button_balance = create_inline_button(text="Баланс", callback_data="check_balance")
 button_summer = create_inline_button(text="☀️ Лето с KLiK", callback_data="summer_main")
 
