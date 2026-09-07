@@ -9,7 +9,7 @@ from aiogram import Router, F
 from aiogram.types import CallbackQuery, InputMediaPhoto
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
-from tg_bot.configs.bot_settings import API_URL
+from tg_bot.configs.bot_settings import API_URL, SUMMER_FEATURE_ENABLED
 from tg_bot.configs.bot_messages import (
     SUMMER_SELECT_DIRECTION,
     SUMMER_CITY_SELECT_FORMAT,
@@ -24,6 +24,22 @@ from tg_bot.configs.logger_config import get_logger
 logger = get_logger()
 
 summer_camp_router = Router()
+
+
+if not SUMMER_FEATURE_ENABLED:
+
+    @summer_camp_router.callback_query(F.data.startswith("summer_"))
+    async def handle_summer_disabled(callback: CallbackQuery):
+        """
+        Заглушка на время, пока раздел «Лето с KLiK» скрыт.
+
+        Кнопки в меню больше нет, но она осталась в старых сообщениях чата,
+        и её по-прежнему можно нажать. Обработчик зарегистрирован первым,
+        поэтому перехватывает все callback-и раздела и дальше по сценарию
+        не пускает. Когда SUMMER_FEATURE_ENABLED = True, заглушка не
+        создаётся и раздел работает как раньше.
+        """
+        await callback.answer(SUMMER_FEATURE_DISABLED, show_alert=True)
 
 
 def _build_full_image_url(image_url: str) -> str:

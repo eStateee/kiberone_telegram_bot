@@ -16,3 +16,8 @@ if DEBUG:
     API_URL = os.getenv("LOCAL_KIBER_API_URL")
 else:
     API_URL = os.getenv("KIBER_API_URL")
+
+# Раздел «Лето с KLiK» скрыт из меню бота.
+# Код сценария сохранён целиком: чтобы вернуть кнопку и её обработчики,
+# достаточно поставить True.
+SUMMER_FEATURE_ENABLED = False
